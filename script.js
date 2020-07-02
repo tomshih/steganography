@@ -292,7 +292,7 @@ loadFile.addEventListener( 'change', function ( e ) {
             //console.log( result )
             
 			//saveByteArray( result.split(''), 'cubaan.txt' );
-			$('#decodedText').val(plainText);
+			$('#decodedText').val(decodedResult);
 			$('#decodeSuccess').show();
         }
 		img.src = e.target.result;
