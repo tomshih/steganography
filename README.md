@@ -1,7 +1,6 @@
 <br />
 <p align="center">
   <h1 align="center">Javascript Steganography</h1>
-  <p>Hide important text in image</p>
 </p>
 
 
