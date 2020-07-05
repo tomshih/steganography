@@ -23,7 +23,10 @@ document.getElementById( 'hidingTextFile' ).addEventListener( 'change', function
 
 function hideData(){
 	document.getElementById("hidingSuccess").style.display = "none";
-
+	document.getElementById("loading_hideData").style.display = "block";
+	document.getElementById("btn_hideData").style.display = "none";
+	document.getElementById("btn_hideDataPrev").style.display = "none";
+	
 	var plainText=document.getElementById("hidingText").value;
 	var plainTextData = str2ab(plainText);
 	
@@ -36,6 +39,9 @@ function hideData(){
 	//saveTextArray( [exportData], 'original.txt' );
 	
 	document.getElementById("hidingSuccess").style.display = "block";
+	document.getElementById("loading_hideData").style.display = "none";
+	document.getElementById("btn_hideData").style.display = "block";
+	document.getElementById("btn_hideDataPrev").style.display = "block";
 	
 	document.getElementById('btn_hideDataNext').click();
 }
@@ -190,6 +196,9 @@ loadFile.addEventListener( 'change', function ( e ) {
        
         img.onload = function () {
 			
+			document.getElementById("decodeSuccess").style.display = "none";
+			document.getElementById("loading_decodeData").style.display = "block";
+			
 			console.log("loaded cover image size:"+this.width + 'x' + this.height);
 			
 			document.getElementById('decodedCanvas').width = this.width;
@@ -282,6 +291,7 @@ loadFile.addEventListener( 'change', function ( e ) {
 			
 			document.getElementById("decodedText").value=_decodedResult;
 			document.getElementById("decodeSuccess").style.display = "block";
+			document.getElementById("loading_decodeData").style.display = "none";
         }
 		img.src = e.target.result;
     }
