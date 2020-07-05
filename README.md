@@ -1,37 +1,49 @@
-## Welcome to GitHub Pages
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-You can use the [editor on GitHub](https://github.com/tomshih/steganography/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
-### Markdown
+<!-- PROJECT LOGO -->
+<br />
+<p align="center">
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+  <h3 align="center">Steganography Javascript</h3>
+</p>
 
-```markdown
-Syntax highlighted code block
 
-# Header 1
-## Header 2
-### Header 3
+## About The Project
 
-- Bulleted
-- List
+Steganography is the practice of concealing a file, message within another file like image in order to protect the important information. This concept is like hiding a tree in the forest. Therefore, hackers will be hard to find the imporant information of you in a plain text file. You can it use for:
+* Protect your username and password in image
+* Send your secret message through image to family and friends
+* Send your secret message through image to family and friends
+The program is totally client side execution and open sourced. Feel free to leave me feedback and use it anyway you like. 
 
-1. Numbered
-2. List
 
-**Bold** and _Italic_ and `Code` text
 
-[Link](url) and ![Image](src)
-```
+## Usage
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+You can to https://tomshih.github.io/steganography/ to try it.
 
-### Jekyll Themes
+## Roadmap
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/tomshih/steganography/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+See the [open issues](https://github.com/tomshih/steganography/issues) for a list of proposed features (and known issues).
 
-### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+
+
+<!-- CONTACT -->
+## Contact
+
+Project Link: [https://github.com/tomshih/steganography](https://github.com/tomshih/steganography)
+
