@@ -10,6 +10,7 @@ Steganography is the practice of concealing a file, message within another file 
 * Protect your username and password in image
 * Send your secret message through image to family and friends
 * Send your secret message through image to family and friends
+
 The program is totally client side execution and open sourced. Feel free to leave me feedback and use it anyway you like. 
 
 
