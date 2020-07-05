@@ -1,18 +1,10 @@
-var canvas = document.getElementById('coverCanvas'),
-    secret = document.getElementById('secretCanvas'),
-    coverAfter = document.getElementById('coverAfterCanvas'),
-    ctx = canvas.getContext( '2d' ),
-    ctxSecret = secret.getContext( '2d' ),
-    ctxCoverAfter = coverAfter.getContext( '2d' ),
-    plainTextFile = document.getElementById( 'plainTextFile' ),
-    loadFile = document.getElementById( 'loadFile' ),
-    plainTextData,
-    coverImgData,
-    index = 0,
-	capacityBytes,
-	capacityLeft;
+var _coverImgData,
+    _index = 0,
+	_capacityBytes,
+	_utf8mode=8,
+	_decodedResult="";
 	
-plainTextFile.addEventListener( 'change', function ( e ) {
+document.getElementById( 'hidingTextFile' ).addEventListener( 'change', function ( e ) {
 
     var file = e.target.files[ 0 ];
     var fr = new FileReader();
@@ -20,136 +12,123 @@ plainTextFile.addEventListener( 'change', function ( e ) {
     fr.addEventListener( "load", loadEvent );
 
     function loadEvent ( evt ) {
-
         if ( evt.target.readyState == FileReader.DONE ) {
-            // returned arraybuffer object
-            var arrayBuffer = evt.target.result;
-            // assign arraybuffer to signed int8array instead of normal array
-            // 1 byte per index, and only store to 256 values
-            plainTextData = new Uint8Array( arrayBuffer );
-			$('#plainText').val(String.fromCharCode.apply(null, plainTextData));
-			console.log( plainTextData );
-			$('#plainText').trigger('change');
+			document.getElementById("hidingText").value= evt.target.result;
+			document.getElementById("hidingText").onchange();
         }
-
     }
-    // read as arraybuffer
-    fr.readAsArrayBuffer( file );
+	fr.readAsText(file);
 
 });
 
-hideData.addEventListener( 'click', function (e ) {
-	$('#hidingSuccess').hide();
+function hideData(){
+	document.getElementById("hidingSuccess").style.display = "none";
 
-    // start reading & replacing bits
-	readByte( plainTextData );
-	//console.log(coverImgData);
-	// draw canvas using image data instead or img object
-	ctxSecret.putImageData( coverImgData, 0, 0 );
+	var plainText=document.getElementById("hidingText").value;
+	var plainTextData = str2ab(plainText);
 	
-	const exportData = coverImgData.data.toString().replace(/,/g, '\n');
+	embedData2Img( plainTextData );
+	var secret = document.getElementById('secretCanvas');
+	var ctxSecret = secret.getContext( '2d' );
+	ctxSecret.putImageData( _coverImgData, 0, 0 );
+	
+	const exportData = _coverImgData.data.toString().replace(/,/g, '\n');
 	//saveTextArray( [exportData], 'original.txt' );
 	
-	$('#hidingSuccess').show();
-});
-
-/**
-* reading secret's bit for every character set's code
-*/
-function readByte( secret ) {
+	document.getElementById("hidingSuccess").style.display = "block";
 	
-    for ( var i = 0, length = secret.length; i < length; i++ ) {
+	document.getElementById('btn_hideDataNext').click();
+}
+
+function embedData2Img( targetText ) {
+	
+	_index = 0;
+	
+    for ( var i = 0, length = targetText.length; i < length; i++ ) {
 
         if ( i == 0 ) {
-            // on first bit, store the length of secret data
-            // must multiple by 4, as one character's code containing
-            // 8bits, thus this 8bits divide by 2. every 2 bits should replace
-            // the LSB(Least significant bit) of pixel's byte
             var secretLength = length;
             console.info( 'Secret Length(' + length + 'x4) : ' + secretLength )
-            // as our imageData is a typed array(Uint8coverImgData)
-            // it only can store value not more than 256(8bit or 1byte)
             if ( secretLength > 255 ) {
-				// check how many times should we need imageData's index
-                // to store our secret's length
                 var division = secretLength / 255;
-                // integer number
                 if ( division % 1 === 0 ) {
                     for ( var k = 0; k < division; k++ ) {
-                        coverImgData.data[ k ] = 255;
-                        index++;
+                        _coverImgData.data[ k ] = 255;
+                        _index++;
                     }
                 }
-                // float number
                 else {
 
                     var firstPortion = division.toString().split(".")[ 0 ];
                     var secondPortion = division.toString().split(".")[ 1 ];
 
                     for ( var k = 0; k < firstPortion; k++ ) {
-                        coverImgData.data[ k ] = 255;
-                        index++;
+                        _coverImgData.data[ k ] = 255;
+                        _index++;
                     }
 
-                    var numberLeft = Math.round( ( division - firstPortion ) * 255 );
-                    console.info( 'numberLeft : ' + numberLeft )
-                    coverImgData.data[ k ] = numberLeft;
-                    index++;
+                    var numberLeft = secretLength- (firstPortion*255);
+                    console.info( 'numberLeft : ' + numberLeft );
+                    _coverImgData.data[ k ] = numberLeft;
+                    _index++;
                 }
 
             } else {
-                coverImgData.data[ 0 ] = secretLength;
-                index++;
+                _coverImgData.data[ 0 ] = secretLength;
+                _index++;
             }
-
-            console.log( 'sss : ' + coverImgData.data[ 0 ] )
-
         }
-
-        var asciiCode = secret[ i ];
-        // use masking, to clear bit, and take the bit we want only
-        // Take only first 2 bit, eg : 0111 0011 => 0000 0011
-        var first2bit = ( asciiCode & 0x03 ); // 0x03 = 3
-        // Take only first 4 bit(2bit at the end), eg : 0111 0011 => 0000 0000
-        var first4bitMiddle = ( asciiCode & 0x0C ) >> 2; // 0x0C = 12, shift to the right 2 bit or divide by 2^2, as we want to take first 2 bit at the end
-        // Take only first 6 bit(2bit at the end), eg : 0111 0011 => 0011 0000
-        var first6bitMiddle = ( asciiCode & 0x30 ) >> 4; // 0x30 = 48, shift to the right 4 bit or divide by 2^4, as we want to take first 2 bit at the end
-        // Take only first 8 bit(2bit at the end), eg : 0111 0011 => 0100 0000
-        var first8bitMiddle = ( asciiCode & 0xC0 ) >> 6; // 0xC0 = 192, shift to the right 6 bit or divide by 2^6, as we want to take first 2 bit at the end
-        //console.log(i + ' : ' + first2bit);
-        //console.log(i + ' : ' + first4bitMiddle);
-        //console.log(i + ' : ' + first6bitMiddle);
-        //console.log(i + ' : ' + first8bitMiddle);
-        // start replacing our secret's bit on LSB
-        replaceByte( first2bit );
-        replaceByte( first4bitMiddle );
-        replaceByte( first6bitMiddle );
-        replaceByte( first8bitMiddle );
-
-
+		
+		var asciiCode = targetText[ i ];
+		
+		if(_utf8mode==8)
+		{
+			var first2bit = ( asciiCode & 0x03 ); 
+			var first4bitMiddle = ( asciiCode & 0x0C ) >> 2; 
+			var first6bitMiddle = ( asciiCode & 0x30 ) >> 4;
+			var first8bitMiddle = ( asciiCode & 0xC0 ) >> 6; 
+			
+			replaceByte( first2bit );
+			replaceByte( first4bitMiddle );
+			replaceByte( first6bitMiddle );
+			replaceByte( first8bitMiddle );
+		
+		}
+		else if(_utf8mode==16)
+		{
+			var first2bit = ( asciiCode & 0x0003 ); 
+			var first4bitMiddle = ( asciiCode & 0x000C ) >> 2; 
+			var first6bitMiddle = ( asciiCode & 0x0030 ) >> 4; 
+			var first8bitMiddle = ( asciiCode & 0x00C0 ) >> 6; 
+			var first10bitMiddle = ( asciiCode & 0x0300 ) >> 8; 
+			var first12bitMiddle = ( asciiCode & 0x0C00 ) >> 10; 
+			var first14bitMiddle = ( asciiCode & 0x3000 ) >> 12; 
+			var first16bitMiddle = ( asciiCode & 0xC000 ) >> 14; 
+			
+			replaceByte( first2bit );
+			replaceByte( first4bitMiddle );
+			replaceByte( first6bitMiddle );
+			replaceByte( first8bitMiddle );
+			replaceByte( first10bitMiddle );
+			replaceByte( first12bitMiddle );
+			replaceByte( first14bitMiddle );
+			replaceByte( first16bitMiddle );
+		}
     }
 }
 
-/**
-* replace bits for each imageData's byte
-*/
 function replaceByte ( bits ) {
-    // clear the first two bit(LSB) using &
-    // and replacing with secret's bit
-	if(index < coverImgData.data.length)
+	if(_index < _coverImgData.data.length)
 	{
-		if(index%4==3 && index < (coverImgData.data.length-1)){
-			coverImgData.data[ index ]=255; index++;
+		if(_index%4==3 && _index < (_coverImgData.data.length-1)){
+			_coverImgData.data[ _index ]=255; _index++;
 		} 
-		coverImgData.data[ index ] = ( coverImgData.data[ index ] & 0xFC ) | bits;
-		index++;
+		_coverImgData.data[ _index ] = ( _coverImgData.data[ _index ] & 0xFC ) | bits;
+		_index++;
 	}
 
 }
-/**
-* save/force download data
-* Credit to : http://stackoverflow.com/users/1086928/syntax
-*/
+
 var saveByteArray = (function() {
     var a = document.createElement("a");
     document.body.appendChild(a);
@@ -165,7 +144,6 @@ var saveByteArray = (function() {
         window.URL.revokeObjectURL(url);
     };
 }());
-//saveByteArray( result.split(''), 'cubaan.txt' );
 
 var saveTextArray = (function() {
     var a = document.createElement("a");
@@ -193,13 +171,12 @@ var saveImage = function(targetCanvas, filename) {
   a.click();
 }
 
-var decodedResult="";
-
 function saveDecodedText()
 {
-	saveByteArray( decodedResult.split(''), 'decoded.txt' );
+	saveByteArray( _decodedResult.split(''), 'decoded.txt' );
 }
 
+var loadFile = document.getElementById( 'loadFile' );
 loadFile.addEventListener( 'change', function ( e ) {
 
     var file = e.target.files[ 0 ];
@@ -211,36 +188,25 @@ loadFile.addEventListener( 'change', function ( e ) {
 
         var img = new Image();
        
-        // wait for image finish load
-        // then draw image into canvas
         img.onload = function () {
-			
 			
 			console.log("loaded cover image size:"+this.width + 'x' + this.height);
 			
-			document.getElementById('coverAfterCanvas').width = this.width;
-			document.getElementById('coverAfterCanvas').height = this.height;
+			document.getElementById('decodedCanvas').width = this.width;
+			document.getElementById('decodedCanvas').height = this.height;
 			
+			var coverAfter = document.getElementById('decodedCanvas'),
 			ctxCoverAfter = coverAfter.getContext( '2d' )
 			
             ctxCoverAfter.drawImage( img, 0, 0 );
-            // returned arraybuffer object
-            //var arrayBuffer = evt.target.result;
-            // assign arraybuffer to unsigned int8array instead of normal array
-            // 1 byte per index, and only store to 256 values
-            //var loadView = new Uint8Array(arrayBuffer);
-            var loadView = ctxCoverAfter.getImageData( 0, 0, coverAfter.height, coverAfter.width );
+            var loadView = ctxCoverAfter.getImageData( 0, 0, coverAfter.width, coverAfter.height );
             console.log( loadView )
             var totalLength = 0;
             var lastIndex;
-			// loop over all the pixel's bit
-            // sum up all the length(secret data's length)
 			
 			const exportData = loadView.data.toString().replace(/,/g, '\n');
-			//saveTextArray( [exportData], 'modified.txt' );
 			
             for ( var b = 0, viewLength = loadView.data.length; b < viewLength; b++ ) {
-               	// get the length for matched index only
                 if (loadView.data[ b ] == 255) {
                     totalLength += loadView.data[ b ];
                     if (loadView.data[ b + 1 ] < 255) {
@@ -254,139 +220,151 @@ loadFile.addEventListener( 'change', function ( e ) {
                     break;
                 }
             }
-            console.info( 'Total length :' + totalLength + ', Last Index : ' + lastIndex )
-                // get first index - secret's length
+            console.info( 'Total length :' + totalLength + ', Last Index : ' + lastIndex );
             var secretLength = totalLength;
-            // instantiate Unsigned array(8 bit)
-            // divided by 4 as one character code equal to 8bit
-            var newUint8Array = new Uint8Array( totalLength );
-            var j = 0;
-            // start extracting the bits from pixel
-            for ( var i = ( lastIndex + 1 ); i < loadView.data.length; i = i++) {
-				// we only need the first 2 bit from each byte
-                // as those 2bits contains our secret data's bit
-                // first, clear the unused bit using mask(3) == 0000 0011
-                // then shifting left for each bit(ordering)
-                // staying at its own location
-				var aShift,bShift,cShift,dShift;
-				if(i%4==3) i++;
-                aShift = ( loadView.data[ i++ ] & 3 );
-				if(i%4==3) i++;
-                bShift = ( loadView.data[ i++] & 3 ) << 2;
-				if(i%4==3) i++;
-                cShift = ( loadView.data[ i++] & 3 ) << 4;
-				if(i%4==3) i++;
-                dShift = ( loadView.data[ i++] & 3 ) << 6;
-                // final, merge/combine all shifted bits to form a byte(8bits)
-                var result = ( ( ( aShift | bShift) | cShift ) | dShift );
-                // store the result(single byte) into unsigned integer
-                newUint8Array[ j ] = result;
-                j++;
-				if(j==secretLength)
-					break;
+			
+			if(_utf8mode==8)
+			{
+				var newUint8Array = new Uint8Array( totalLength );
+				var j = 0;
+				for ( var i = ( lastIndex + 1 ); i < loadView.data.length; i = i++) {
+					var aShift,bShift,cShift,dShift;
+					if(i%4==3) i++;
+					aShift = ( loadView.data[ i++ ] & 3 );
+					if(i%4==3) i++;
+					bShift = ( loadView.data[ i++] & 3 ) << 2;
+					if(i%4==3) i++;
+					cShift = ( loadView.data[ i++] & 3 ) << 4;
+					if(i%4==3) i++;
+					dShift = ( loadView.data[ i++] & 3 ) << 6;
+					var result = ( ( ( aShift | bShift) | cShift ) | dShift );
+					newUint8Array[ j ] = result;
+					j++;
+					if(j==secretLength)
+						break;
 
-            }
-            console.log( newUint8Array )
-            // decode collection of unsigned integer into ASCII character set
-            decodedResult = decodeUtf8( newUint8Array );
-            //console.log( result )
-            
-			//saveByteArray( result.split(''), 'cubaan.txt' );
-			$('#decodedText').val(decodedResult);
-			$('#decodeSuccess').show();
+				}
+				console.log( newUint8Array )
+				_decodedResult = ab2str(newUint8Array); 
+			}
+			else if(_utf8mode==16)
+			{
+				var newUint16Array = new Uint16Array( totalLength );
+				var j = 0;
+				for ( var i = ( lastIndex + 1 ); i < loadView.data.length; i = i++) {
+					var aShift,bShift,cShift,dShift,eShift,fShift,gShift,hShift;;
+					if(i%4==3) i++;
+					aShift = ( loadView.data[ i++ ] & 3 );
+					if(i%4==3) i++;
+					bShift = ( loadView.data[ i++] & 3 ) << 2;
+					if(i%4==3) i++;
+					cShift = ( loadView.data[ i++] & 3 ) << 4;
+					if(i%4==3) i++;
+					dShift = ( loadView.data[ i++] & 3 ) << 6;
+					if(i%4==3) i++;
+					eShift = ( loadView.data[ i++] & 3 ) << 8;
+					if(i%4==3) i++;
+					fShift = ( loadView.data[ i++] & 3 ) << 10;
+					if(i%4==3) i++;
+					gShift = ( loadView.data[ i++] & 3 ) << 12;
+					if(i%4==3) i++;
+					hShift = ( loadView.data[ i++] & 3 ) << 14;
+					var result = ( ( aShift | bShift) | cShift | dShift | eShift | fShift | gShift | hShift);
+					newUint16Array[ j ] = result;
+					j++;
+					if(j==secretLength)
+						break;
+
+				}
+				console.log( newUint16Array )
+				_decodedResult = ab2str(newUint16Array);
+			}
+			
+			document.getElementById("decodedText").value=_decodedResult;
+			document.getElementById("decodeSuccess").style.display = "block";
         }
 		img.src = e.target.result;
     }
 
-    // read as dataUrl(base64)
     fr.readAsDataURL( file );
 
 });
 
-/**
-* decode character's code into character
-* Credit to http://ciaranj.blogspot.my/2007/11/utf8-characters-encoding-in-javascript.html
-*/
-function decodeUtf8(arrayBuffer) {
-    var result = "";
-    var i = 0;
-    var c = 0;
-    var c1 = 0;
-    var c2 = 0;
-
-    var data = new Uint8Array(arrayBuffer);
-
-    // If we have a BOM skip it
-    if (data.length >= 3 && data[0] === 0xef && data[1] === 0xBB && data[2] === 0xBF) {
-        i = 3;
-    }
-
-    while (i < data.length) {
-        c = data[i];
-
-        if (c < 128) {
-            result += String.fromCharCode(c);
-            i++;
-        } else if (c > 191 && c < 224) {
-            if (i + 1 >= data.length) {
-                throw "UTF-8 Decode failed. Two byte character was truncated.";
-            }
-            c2 = data[i + 1];
-            result += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
-            i += 2;
-        } else {
-            if (i + 2 >= data.length) {
-                throw "UTF-8 Decode failed. Multi byte character was truncated.";
-            }
-            c2 = data[i + 1];
-            c3 = data[i + 2];
-            result += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-            i += 3;
-        }
-    }
-    return result;
-}
-
 function str2ab(str) {
-  var buf = new ArrayBuffer(str.length); 
-  var bufView = new Uint8Array(buf);
-  for (var i=0, strLen=str.length; i<strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  return bufView;
+	var buf = null, bufView=null;
+	if(_utf8mode==8)
+	{
+		buf = new ArrayBuffer(str.length); 
+		bufView = new Uint8Array(buf);
+	}
+	else if(_utf8mode==16)
+	{
+		buf = new ArrayBuffer(str.length*2); 
+		bufView = new Uint16Array(buf);	
+	}
+		
+	for (var i=0, strLen=str.length; i<strLen; i++) {
+		bufView[i] = str.charCodeAt(i);
+	}
+	return bufView;
+  
 }
 
-document.getElementById('plainText').onchange=(function () {
-		
-		plainText=$('#plainText').val()
-		var textlenspace=0;		
-		if(plainText%255==0) textlenspace=Math.floor(plainText.length/255);
-		else textlenspace=Math.floor(plainText.length/255)+1;
-		
-		plainTextData = str2ab(plainText);
-		capacityLeft = capacityBytes-(plainTextData.length);
-		
-		document.getElementById('imgLen').innerHTML = (capacityLeft-textlenspace)+ " characters storage left.";
-	});
+function ab2str(buf) {
+	if(_utf8mode==8)
+		return String.fromCharCode.apply(null, new Uint8Array(buf));
+	else if(_utf8mode==16)
+		return String.fromCharCode.apply(null, new Uint16Array(buf));
+}
 
-document.getElementById('plainText').onkeyup = function () {
-	//document.getElementById('textLen').innerHTML = "Characters: " + (this.value.length);
+function checkImageCapacity()
+{
+	var plainText=document.getElementById("hidingText").value;
 	
-	plainText=this.value
-	var textlenspace=0;
-	if(plainText%255==0) textlenspace=Math.floor(plainText.length/255);
+	var textlenspace=0;		
+	if(plainText.length%255==0) textlenspace=Math.floor(plainText.length/255);
 	else textlenspace=Math.floor(plainText.length/255)+1;
 	
-	plainTextData = str2ab(plainText);
-	capacityLeft = capacityBytes-(plainTextData.length);
+	var plainTextData = str2ab(plainText);
+	var maxCharLen= _capacityBytes-textlenspace;
+	var capacityLeft = maxCharLen-(plainTextData.length);
 	
-	document.getElementById('imgLen').innerHTML = (capacityLeft-textlenspace)+ " characters storage left.";
+	document.getElementById("hidingText").maxLength = ""+maxCharLen;
+	
+	if(capacityLeft>=0)
+	{
+		document.getElementById('charStorageLeft').innerHTML = (capacityLeft)+ " characters storage left.";
+	}
+	else
+	{
+		document.getElementById("hidingText").value=document.getElementById("hidingText").value.substring(0,maxCharLen);
+		document.getElementById('charStorageLeft').innerHTML = "Over the image characters storage capacity. Message truncated. ";
+	}
+	return capacityLeft;
+}
+
+document.getElementById('hidingText').onchange=(function () {
+	checkImageCapacity();
+});
+
+document.getElementById('hidingText').onkeyup = function () {
+	checkImageCapacity();
 };
 
-document.getElementById('cover').onchange = function() {
+function calculateCapacityBytes(coverImgData)
+{
+	var capacityBytes=0;
+	if(_utf8mode==8)
+		capacityBytes= (coverImgData.data.length - Math.floor(coverImgData.data.length/4))/4;
+	else if(_utf8mode==16)
+		capacityBytes= Math.floor((coverImgData.data.length - Math.floor(coverImgData.data.length/4))/8);
+	return capacityBytes;
+}
+
+document.getElementById('coverImage').onchange = function() {
     
-	var cover = document.getElementById('cover');
-	var file = cover.files[ 0 ];
+	var coverImage = document.getElementById('coverImage');
+	var file = coverImage.files[ 0 ];
     var fr = new FileReader();
 
     fr.addEventListener( "load", loadEvent );
@@ -401,29 +379,60 @@ document.getElementById('cover').onchange = function() {
         var img = new Image();
         img.onload = function () {
 			
-			//console.log("loaded cover image size:"+this.width + 'x' + this.height);
-			
 			document.getElementById('coverCanvas').width = this.width;
 			document.getElementById('coverCanvas').height = this.height;
 			
 			document.getElementById('secretCanvas').width = this.width;
 			document.getElementById('secretCanvas').height = this.height;			
 			
+			var canvas = document.getElementById('coverCanvas');
 			var ctx = canvas.getContext( '2d' )
             ctx.drawImage( img, 0, 0 );
-			
-			coverImgData = ctx.getImageData( 0, 0, canvas.height, canvas.width );
-            capacityBytes= (coverImgData.data.length - Math.floor(coverImgData.data.length/4))/4;
-			
-			document.getElementById('imgLen').innerHTML = (capacityBytes)+ " characters storage left.";
-			
-            
-		}
-		
-        img.src = e.target.result;		
 
+			_coverImgData = ctx.getImageData( 0, 0, canvas.width, canvas.height );
+			
+			_capacityBytes=calculateCapacityBytes(_coverImgData);
+			
+			checkImageCapacity();
+			document.getElementById("hidingSuccess").style.display = "none";
+		}
+        img.src = e.target.result;		
 	}
 	
 	fr.readAsDataURL( file );
 
 }
+
+document.getElementById('cb_utf8_16').onchange=(function (){
+    if(this.checked) {
+        _utf8mode=16;
+		_capacityBytes=calculateCapacityBytes(_coverImgData);
+    }
+	else{
+		_utf8mode=8;
+		_capacityBytes=calculateCapacityBytes(_coverImgData);
+	}
+	
+	checkImageCapacity();
+});
+
+function resetOperation()
+{
+	document.getElementById("coverCanvas").width = 0;
+	document.getElementById("coverCanvas").height = 0;
+	document.getElementById("secretCanvas").width = 0;
+	document.getElementById("secretCanvas").height = 0;	
+	document.getElementById("decodedCanvas").width = 0;
+	document.getElementById("decodedCanvas").height = 0;		
+	
+	document.getElementById("coverImage").value = "";
+	document.getElementById("hidingTextFile").value = "";
+	document.getElementById("loadFile").value = "";
+	
+	document.getElementById("hidingText").value = "";
+	document.getElementById("decodedText").value = "";	
+	
+	document.getElementById("hidingSuccess").style.display = "none";
+	document.getElementById("decodeSuccess").style.display = "none";
+}
+
