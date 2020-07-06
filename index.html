@@ -484,7 +484,7 @@
 									</div>
 								</div>
 								<input type="file" id="coverImage" accept="image/*" />
-								<div style="width:100%;overflow:hidden;text-align: center;">
+								<div style="width:100%;overflow:hidden;text-align: center;overflow: scroll;">
 									<canvas id="coverCanvas" width="0" height="0" style="border:1px solid #111111;"></canvas>
 								</div>
 							</div>
@@ -562,11 +562,11 @@
 								</div> <br><br>
 								<div class="row justify-content-center" style="margin-bottom: 10px;">
 									<div class="col-10 text-center">
-										<h5 class="paragraph-text text-center" style="font-size:16px;">Your text have successfully hidden in the image!<br>Right click on image or click "Download Image" and save to your pc!</h5>
+										<h5 class="paragraph-text text-center" style="font-size:16px;">Your text have successfully hidden in the image!<br>Right click on image or click "Download Image" and save to your pc/mobile!</h5>
 									</div>
 								</div>
 								<div id="hidingSuccess" style="display:none;">
-									<div style="width:100%;overflow:hidden;text-align: center;margin-bottom:20px;">
+									<div style="width:100%;overflow:hidden;text-align: center;margin-bottom:20px;overflow: scroll;">
 										<canvas id="secretCanvas" width="0" height="0"></canvas>
 									</div>
 									<input id="downloadImage" type="button" onclick="saveImage('secretCanvas','encoded')" value="Download Image" />
@@ -600,8 +600,8 @@
 						  <div class="sk-circle10 sk-circle"></div>
 						  <div class="sk-circle11 sk-circle"></div>
 						  <div class="sk-circle12 sk-circle"></div>
-					</div>
-					<div style="width:100%;overflow:hidden;text-align: center;margin-bottom:20px;">
+					</div>  
+					<div style="width:100%;overflow:hidden;text-align: center;margin-bottom:20px;overflow: scroll;">
 						<canvas id="decodedCanvas" width="0" height="0"></canvas>
 					</div>
 					<div id="decodeSuccess" style="display:none;">
