@@ -204,104 +204,105 @@ loadFile.addEventListener( 'change', function ( e ) {
 			document.getElementById("loading_decodeData").style.display = "block";
 			
 			console.log("loaded cover image size:"+this.width + 'x' + this.height);
-			
 			document.getElementById('decodedCanvas').width = this.width;
 			document.getElementById('decodedCanvas').height = this.height;
-			
-			var coverAfter = document.getElementById('decodedCanvas'),
-			ctxCoverAfter = coverAfter.getContext( '2d' )
-			
-            ctxCoverAfter.drawImage( img, 0, 0 );
-            var loadView = ctxCoverAfter.getImageData( 0, 0, coverAfter.width, coverAfter.height );
-            console.log( loadView )
-            var totalLength = 0;
-            var lastIndex;
-			
-			const exportData = loadView.data.toString().replace(/,/g, '\n');
-			
-            for ( var b = 0, viewLength = loadView.data.length; b < viewLength; b++ ) {
-                if (loadView.data[ b ] == 255) {
-                    totalLength += loadView.data[ b ];
-                    if (loadView.data[ b + 1 ] < 255) {
-                        totalLength += loadView.data[ b + 1 ];
-                        lastIndex = b + 1;
-                        break;
-                    }
-                } else {
-                    totalLength += loadView.data[ b ];
-                    lastIndex = b;
-                    break;
-                }
-            }
-            console.info( 'Total length :' + totalLength + ', Last Index : ' + lastIndex );
-            var secretLength = totalLength;
-			
-			if(_utf8mode==8)
-			{
-				var newUint8Array = new Uint8Array( totalLength );
-				var j = 0;
-				for ( var i = ( lastIndex + 1 ); i < loadView.data.length; i = i++) {
-					var aShift,bShift,cShift,dShift;
-					if(i%4==3) i++;
-					aShift = ( loadView.data[ i++ ] & 3 );
-					if(i%4==3) i++;
-					bShift = ( loadView.data[ i++] & 3 ) << 2;
-					if(i%4==3) i++;
-					cShift = ( loadView.data[ i++] & 3 ) << 4;
-					if(i%4==3) i++;
-					dShift = ( loadView.data[ i++] & 3 ) << 6;
-					var result = ( ( ( aShift | bShift) | cShift ) | dShift );
-					newUint8Array[ j ] = result;
-					j++;
-					if(j==secretLength)
-						break;
 
-				}
-				console.log( newUint8Array )
-				_decodedResult = ab2str(newUint8Array); 
-			}
-			else if(_utf8mode==16)
-			{
-				var newUint16Array = new Uint16Array( totalLength );
-				var j = 0;
-				for ( var i = ( lastIndex + 1 ); i < loadView.data.length; i = i++) {
-					var aShift,bShift,cShift,dShift,eShift,fShift,gShift,hShift;;
-					if(i%4==3) i++;
-					aShift = ( loadView.data[ i++ ] & 3 );
-					if(i%4==3) i++;
-					bShift = ( loadView.data[ i++] & 3 ) << 2;
-					if(i%4==3) i++;
-					cShift = ( loadView.data[ i++] & 3 ) << 4;
-					if(i%4==3) i++;
-					dShift = ( loadView.data[ i++] & 3 ) << 6;
-					if(i%4==3) i++;
-					eShift = ( loadView.data[ i++] & 3 ) << 8;
-					if(i%4==3) i++;
-					fShift = ( loadView.data[ i++] & 3 ) << 10;
-					if(i%4==3) i++;
-					gShift = ( loadView.data[ i++] & 3 ) << 12;
-					if(i%4==3) i++;
-					hShift = ( loadView.data[ i++] & 3 ) << 14;
-					var result = ( ( aShift | bShift) | cShift | dShift | eShift | fShift | gShift | hShift);
-					newUint16Array[ j ] = result;
-					j++;
-					if(j==secretLength)
+			setTimeout(function(){ 
+						
+				var coverAfter = document.getElementById('decodedCanvas'),
+				ctxCoverAfter = coverAfter.getContext( '2d' )
+				
+				ctxCoverAfter.drawImage( img, 0, 0 );
+				var loadView = ctxCoverAfter.getImageData( 0, 0, coverAfter.width, coverAfter.height );
+				console.log( loadView )
+				var totalLength = 0;
+				var lastIndex;
+				
+				//const exportData = loadView.data.toString().replace(/,/g, '\n');
+				
+				for ( var b = 0, viewLength = loadView.data.length; b < viewLength; b++ ) {
+					if (loadView.data[ b ] == 255) {
+						totalLength += loadView.data[ b ];
+						if (loadView.data[ b + 1 ] < 255) {
+							totalLength += loadView.data[ b + 1 ];
+							lastIndex = b + 1;
+							break;
+						}
+					} else {
+						totalLength += loadView.data[ b ];
+						lastIndex = b;
 						break;
-
+					}
 				}
-				console.log( newUint16Array )
-				_decodedResult = ab2str(newUint16Array);
-			}
+				console.info( 'Total length :' + totalLength + ', Last Index : ' + lastIndex );
+				var secretLength = totalLength;
+				
+				if(_utf8mode==8)
+				{
+					var newUint8Array = new Uint8Array( totalLength );
+					var j = 0;
+					for ( var i = ( lastIndex + 1 ); i < loadView.data.length; i = i++) {
+						var aShift,bShift,cShift,dShift;
+						if(i%4==3) i++;
+						aShift = ( loadView.data[ i++ ] & 3 );
+						if(i%4==3) i++;
+						bShift = ( loadView.data[ i++] & 3 ) << 2;
+						if(i%4==3) i++;
+						cShift = ( loadView.data[ i++] & 3 ) << 4;
+						if(i%4==3) i++;
+						dShift = ( loadView.data[ i++] & 3 ) << 6;
+						var result = ( ( ( aShift | bShift) | cShift ) | dShift );
+						newUint8Array[ j ] = result;
+						j++;
+						if(j==secretLength)
+							break;
+
+					}
+					console.log( newUint8Array )
+					_decodedResult = ab2str(newUint8Array); 
+				}
+				else if(_utf8mode==16)
+				{
+					var newUint16Array = new Uint16Array( totalLength );
+					var j = 0;
+					for ( var i = ( lastIndex + 1 ); i < loadView.data.length; i = i++) {
+						var aShift,bShift,cShift,dShift,eShift,fShift,gShift,hShift;;
+						if(i%4==3) i++;
+						aShift = ( loadView.data[ i++ ] & 3 );
+						if(i%4==3) i++;
+						bShift = ( loadView.data[ i++] & 3 ) << 2;
+						if(i%4==3) i++;
+						cShift = ( loadView.data[ i++] & 3 ) << 4;
+						if(i%4==3) i++;
+						dShift = ( loadView.data[ i++] & 3 ) << 6;
+						if(i%4==3) i++;
+						eShift = ( loadView.data[ i++] & 3 ) << 8;
+						if(i%4==3) i++;
+						fShift = ( loadView.data[ i++] & 3 ) << 10;
+						if(i%4==3) i++;
+						gShift = ( loadView.data[ i++] & 3 ) << 12;
+						if(i%4==3) i++;
+						hShift = ( loadView.data[ i++] & 3 ) << 14;
+						var result = ( ( aShift | bShift) | cShift | dShift | eShift | fShift | gShift | hShift);
+						newUint16Array[ j ] = result;
+						j++;
+						if(j==secretLength)
+							break;
+
+					}
+					console.log( newUint16Array )
+					_decodedResult = ab2str(newUint16Array);
+				}
+				
+				document.getElementById("decodedText").value=_decodedResult;
+				document.getElementById("decodeSuccess").style.display = "block";
+				document.getElementById("loading_decodeData").style.display = "none";
 			
-			document.getElementById("decodedText").value=_decodedResult;
-			document.getElementById("decodeSuccess").style.display = "block";
-			document.getElementById("loading_decodeData").style.display = "none";
+			}, 2000);
         }
 		img.src = e.target.result;
     }
-
     fr.readAsDataURL( file );
-
 });
 
 function str2ab(str) {
