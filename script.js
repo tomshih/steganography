@@ -1,453 +1,729 @@
-var _coverImgData,
-    _index = 0,
-	_capacityBytes,
-	_utf8mode=8,
-	_decodedResult="";
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>
+		Protect Your Important Text In Image
+	</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.css" />
+	<style>
+	* {
+		margin: 0;
+		padding: 0
+	}
+
+	html {
+		height: 100%
+	}
+
+	p {
+		color: grey
+	}
+
+	#heading {
+		text-transform: uppercase;
+		color: #111111;
+		font-weight: normal
+	}
+
+	#msform {
+		text-align: center;
+		position: relative;
+		margin-top: 20px
+	}
+
+	#msform fieldset {
+		background: white;
+		border: 0 none;
+		border-radius: 0.5rem;
+		box-sizing: border-box;
+		width: 100%;
+		margin: 0;
+		padding-bottom: 20px;
+		position: relative
+	}
+
+	.form-card {
+		text-align: left
+	}
+
+	#msform fieldset:not(:first-of-type) {
+		display: none
+	}
+
+	#msform input,
+	#msform textarea {
+		padding: 8px 15px 8px 15px;
+		border: 1px solid #ccc;
+		border-radius: 0px;
+		margin-bottom: 25px;
+		margin-top: 2px;
+		width: 100%;
+		box-sizing: border-box;
+		color: #2C3E50;
+		background-color: #ECEFF1;
+		font-size: 16px;
+		letter-spacing: 1px
+	}
+
+	#msform input:focus,
+	#msform textarea:focus {
+		-moz-box-shadow: none !important;
+		-webkit-box-shadow: none !important;
+		box-shadow: none !important;
+		border: 1px solid #17a2b8;
+		outline-width: 0
+	}
+
+	#msform .action-button {
+		width: 100px;
+		background: #17a2b8;
+		font-weight: bold;
+		color: white;
+		border: 0 none;
+		border-radius: 0px;
+		cursor: pointer;
+		padding: 10px 5px;
+		margin: 10px 0px 10px 5px;
+		float: right
+	}
+
+	#msform .action-button:hover,
+	#msform .action-button:focus {
+		background-color: #dddddd;
+		color: black;
+	}
+
+	#msform .action-button-previous {
+		width: 100px;
+		background: #616161;
+		font-weight: bold;
+		color: white;
+		border: 0 none;
+		border-radius: 0px;
+		cursor: pointer;
+		padding: 10px 5px;
+		margin: 10px 5px 10px 0px;
+		float: right
+	}
+
+	#msform .action-button-previous:hover,
+	#msform .action-button-previous:focus {
+		background-color: #dddddd;
+		color: black;
+	}
+
+	.card {
+		z-index: 0;
+		border: none;
+		position: relative
+	}
+
+	.fs-title {
+		font-size: 25px;
+		color: #111111;
+		margin-bottom: 15px;
+		font-weight: normal;
+		text-align: left
+	}
+
+	.paragraph-text {
+		color: #111111;
+		font-weight: normal
+	}
+
+	.steps {
+		font-size: 25px;
+		color: gray;
+		margin-bottom: 10px;
+		font-weight: normal;
+		text-align: right
+	}
+
+	.fieldlabels {
+		color: gray;
+		text-align: left
+	}
+
+	#progressbar {
+		margin-bottom: 30px;
+		overflow: hidden;
+		color: lightgrey
+	}
+
+	#progressbar .active {
+		color: #111111
+	}
+
+	#progressbar li {
+		list-style-type: none;
+		font-size: 15px;
+		width: 25%;
+		float: left;
+		position: relative;
+		font-weight: 400
+	}
+
+	#progressbar #pg_coverImage:before {
+		font-family: FontAwesome;
+		content: "\f03e"
+	}
+
+	#progressbar #pg_hiddenText:before {
+		font-family: FontAwesome;
+		content: "\f15c"
+	}
+
+	#progressbar #pg_hide:before {
+		font-family: FontAwesome;
+		content: "\f070"
+	}
+
+	#progressbar #pg_finish:before {
+		font-family: FontAwesome;
+		content: "\f00c"
+	}
+
+	#progressbar li:before {
+		width: 50px;
+		height: 50px;
+		line-height: 45px;
+		display: block;
+		font-size: 20px;
+		color: #ffffff;
+		background: lightgray;
+		border-radius: 50%;
+		margin: 0 auto 10px auto;
+		padding: 2px
+	}
+
+	#progressbar li:after {
+		content: '';
+		width: 100%;
+		height: 2px;
+		background: lightgray;
+		position: absolute;
+		left: 0;
+		top: 25px;
+		z-index: -1
+	}
+
+	#progressbar li.active:before,
+	#progressbar li.active:after {
+		background: #17a2b8
+	}
+
+	.progress {
+		height: 20px
+	}
+
+	.progress-bar {
+		background-color: #17a2b8
+	}
+
+	.fit-image {
+		width: 100%;
+		object-fit: cover
+	}
+
+	#btn_hideData:hover {
+		background-color: #17a2b8;
+		color: white;
+	}
 	
-document.getElementById( 'hidingTextFile' ).addEventListener( 'change', function ( e ) {
+	.quote {
+		margin: 0;
+		background: #eee;
+		padding: 1em;
+		border-radius: 1em;
+		width:80%;
+	}
+	.quote figcaption,
+	.quote blockquote {
+		margin: 1em;
+		float:right;
+	}
+	</style>
+	<style>
+	.checkmark__circle {
+		stroke-dasharray: 166;
+		stroke-dashoffset: 166;
+		stroke-width: 2;
+		stroke-miterlimit: 10;
+		stroke: #7ac142;
+		fill: none;
+		animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+	}
 
-    var file = e.target.files[ 0 ];
-    var fr = new FileReader();
+	.checkmark {
+		width: 56px;
+		height: 56px;
+		border-radius: 50%;
+		display: block;
+		stroke-width: 2;
+		stroke: #fff;
+		stroke-miterlimit: 10;
+		margin: 10% auto;
+		box-shadow: inset 0px 0px 0px #7ac142;
+		animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+	}
 
-    fr.addEventListener( "load", loadEvent );
+	.checkmark__check {
+		transform-origin: 50% 50%;
+		stroke-dasharray: 48;
+		stroke-dashoffset: 48;
+		animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+	}
 
-    function loadEvent ( evt ) {
-        if ( evt.target.readyState == FileReader.DONE ) {
-			document.getElementById("hidingText").value= evt.target.result;
-			document.getElementById("hidingText").onchange();
-        }
-    }
-	fr.readAsText(file);
+	@keyframes stroke {
+		100% {
+			stroke-dashoffset: 0;
+		}
+	}
 
-});
+	@keyframes scale {
 
-function hideData(){
-	document.getElementById("hidingSuccess").style.display = "none";
-	document.getElementById("loading_hideData").style.display = "block";
-	document.getElementById("btn_hideData").style.display = "none";
-	document.getElementById("btn_hideDataPrev").style.display = "none";
+		0%,
+		100% {
+			transform: none;
+		}
 
-	setTimeout(function(){ 
-			
-		var plainText=document.getElementById("hidingText").value;
-		var plainTextData = str2ab(plainText);
-		
-		embedData2Img( plainTextData );
-		var secret = document.getElementById('secretCanvas');
-		var ctxSecret = secret.getContext( '2d' );
-		ctxSecret.putImageData( _coverImgData, 0, 0 );
-		
-		//const exportData = _coverImgData.data.toString().replace(/,/g, '\n');
-		//saveTextArray( [exportData], 'original.txt' );
-		
-		document.getElementById("hidingSuccess").style.display = "block";
-		document.getElementById("loading_hideData").style.display = "none";
-		document.getElementById("btn_hideData").style.display = "block";
-		document.getElementById("btn_hideDataPrev").style.display = "block";
-		
-		document.getElementById('btn_hideDataNext').click();
-	
-	}, 2000);
+		50% {
+			transform: scale3d(1.1, 1.1, 1);
+		}
+	}
+
+	@keyframes fill {
+		100% {
+			box-shadow: inset 0px 0px 0px 30px #7ac142;
+		}
+	}
+	</style>
+	<style>
+	.sk-fading-circle {
+	  margin: 100px auto;
+	  width: 40px;
+	  height: 40px;
+	  position: relative;
+	}
+
+	.sk-fading-circle .sk-circle {
+	  width: 100%;
+	  height: 100%;
+	  position: absolute;
+	  left: 0;
+	  top: 0;
+	}
+
+	.sk-fading-circle .sk-circle:before {
+	  content: '';
+	  display: block;
+	  margin: 0 auto;
+	  width: 15%;
+	  height: 15%;
+	  background-color: #333;
+	  border-radius: 100%;
+	  -webkit-animation: sk-circleFadeDelay 1.2s infinite ease-in-out both;
+			  animation: sk-circleFadeDelay 1.2s infinite ease-in-out both;
+	}
+	.sk-fading-circle .sk-circle2 {
+	  -webkit-transform: rotate(30deg);
+		  -ms-transform: rotate(30deg);
+			  transform: rotate(30deg);
+	}
+	.sk-fading-circle .sk-circle3 {
+	  -webkit-transform: rotate(60deg);
+		  -ms-transform: rotate(60deg);
+			  transform: rotate(60deg);
+	}
+	.sk-fading-circle .sk-circle4 {
+	  -webkit-transform: rotate(90deg);
+		  -ms-transform: rotate(90deg);
+			  transform: rotate(90deg);
+	}
+	.sk-fading-circle .sk-circle5 {
+	  -webkit-transform: rotate(120deg);
+		  -ms-transform: rotate(120deg);
+			  transform: rotate(120deg);
+	}
+	.sk-fading-circle .sk-circle6 {
+	  -webkit-transform: rotate(150deg);
+		  -ms-transform: rotate(150deg);
+			  transform: rotate(150deg);
+	}
+	.sk-fading-circle .sk-circle7 {
+	  -webkit-transform: rotate(180deg);
+		  -ms-transform: rotate(180deg);
+			  transform: rotate(180deg);
+	}
+	.sk-fading-circle .sk-circle8 {
+	  -webkit-transform: rotate(210deg);
+		  -ms-transform: rotate(210deg);
+			  transform: rotate(210deg);
+	}
+	.sk-fading-circle .sk-circle9 {
+	  -webkit-transform: rotate(240deg);
+		  -ms-transform: rotate(240deg);
+			  transform: rotate(240deg);
+	}
+	.sk-fading-circle .sk-circle10 {
+	  -webkit-transform: rotate(270deg);
+		  -ms-transform: rotate(270deg);
+			  transform: rotate(270deg);
+	}
+	.sk-fading-circle .sk-circle11 {
+	  -webkit-transform: rotate(300deg);
+		  -ms-transform: rotate(300deg);
+			  transform: rotate(300deg); 
+	}
+	.sk-fading-circle .sk-circle12 {
+	  -webkit-transform: rotate(330deg);
+		  -ms-transform: rotate(330deg);
+			  transform: rotate(330deg); 
+	}
+	.sk-fading-circle .sk-circle2:before {
+	  -webkit-animation-delay: -1.1s;
+			  animation-delay: -1.1s; 
+	}
+	.sk-fading-circle .sk-circle3:before {
+	  -webkit-animation-delay: -1s;
+			  animation-delay: -1s; 
+	}
+	.sk-fading-circle .sk-circle4:before {
+	  -webkit-animation-delay: -0.9s;
+			  animation-delay: -0.9s; 
+	}
+	.sk-fading-circle .sk-circle5:before {
+	  -webkit-animation-delay: -0.8s;
+			  animation-delay: -0.8s; 
+	}
+	.sk-fading-circle .sk-circle6:before {
+	  -webkit-animation-delay: -0.7s;
+			  animation-delay: -0.7s; 
+	}
+	.sk-fading-circle .sk-circle7:before {
+	  -webkit-animation-delay: -0.6s;
+			  animation-delay: -0.6s; 
+	}
+	.sk-fading-circle .sk-circle8:before {
+	  -webkit-animation-delay: -0.5s;
+			  animation-delay: -0.5s; 
+	}
+	.sk-fading-circle .sk-circle9:before {
+	  -webkit-animation-delay: -0.4s;
+			  animation-delay: -0.4s;
+	}
+	.sk-fading-circle .sk-circle10:before {
+	  -webkit-animation-delay: -0.3s;
+			  animation-delay: -0.3s;
+	}
+	.sk-fading-circle .sk-circle11:before {
+	  -webkit-animation-delay: -0.2s;
+			  animation-delay: -0.2s;
+	}
+	.sk-fading-circle .sk-circle12:before {
+	  -webkit-animation-delay: -0.1s;
+			  animation-delay: -0.1s;
+	}
+
+	@-webkit-keyframes sk-circleFadeDelay {
+	  0%, 39%, 100% { opacity: 0; }
+	  40% { opacity: 1; }
+	}
+
+	@keyframes sk-circleFadeDelay {
+	  0%, 39%, 100% { opacity: 0; }
+	  40% { opacity: 1; } 
+	}		
+	</style>
+</head>
+
+<body>
+	<div class="container-fluid">
+		<div class="row justify-content-center" style="margin-top: 10px;">
+			<figure class="quote">
+				<blockquote>
+					<strong style="font-size:24px;">Steganography</strong> is the practice of concealing a file, message within another file like image in order to protect the important information.
+					This concept is like hiding a tree in the forest. Therefore, hackers will be hard to find the imporant information of you in a plain text file. You can it use for:
+					<h6 style="margin-top:10px;">Protect your username and password in image</h6>
+					<h6>Send your secret message through image to family and friends</h6>
+					
+					The program is all client side execution and open sourced. Feel free to leave me feedback and contact me at <a href="http://github.com/tomshih/steganography"><i class="fa fa-github" aria-hidden="true"></i> github</a>. 
+				</blockquote>
+			</figure>
+		</div>
+		<div class="row justify-content-center" style="margin-top: 10px;">
+			<button type="button" class="btn btn-info btn-lg" onclick="showPanel('hide text')" style="margin:5px;">Hide Text</button>
+			<button type="button" class="btn btn-warning btn-lg" onclick="showPanel('show text')" style="margin:5px;">Show Text</button>
+		</div>
+		<div id="pnl_hideText" class="row justify-content-center">
+			<div class="col-11 col-sm-10 col-md-10 col-lg-6 col-xl-5 text-center p-0 mt-3 mb-2">
+				<div class="card px-0 pt-4 pb-0 mt-3 mb-3" style="margin-top: 0px !important;padding-top: 0px !important;">
+					<h2 id="heading" style="background-color: #17a2b8;padding: 3px;color: white;font-size: 26px;">Hide Text In Image</h2>
+					<p>Provide all the Input to go to next step</p>
+					<form id="msform" action="">
+						<ul id="progressbar">
+							<li class="active" id="pg_coverImage"><strong>Cover Image</strong></li>
+							<li id="pg_hiddenText"><strong>Hidden Text</strong></li>
+							<li id="pg_hide"><strong>Hide</strong></li>
+							<li id="pg_finish"><strong>Finish</strong></li>
+						</ul>
+						<div class="progress">
+							<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+						</div> <br> <!-- fieldsets -->
+						<fieldset>
+							<div class="form-card">
+								<div class="row">
+									<div class="col-7">
+										<h2 class="fs-title">Choose Cover Image:</h2>
+									</div>
+									<div class="col-5">
+										<h2 class="steps">Step 1 - 4</h2>
+									</div>
+								</div>
+								<input type="file" id="coverImage" accept="image/*" />
+								<div style="width:100%;overflow:hidden;text-align: center;overflow: scroll;">
+									<canvas id="coverCanvas" width="0" height="0" style="border:1px solid #111111;"></canvas>
+								</div>
+							</div>
+							<input type="button" name="coverImage" class="next action-button" value="Next" />
+						</fieldset>
+						<fieldset>
+							<div class="form-card">
+								<div class="row">
+									<div class="col-7">
+										<h2 class="fs-title">Input Hidden Text:</h2>
+									</div>
+									<div class="col-5">
+										<h2 class="steps">Step 2 - 4</h2>
+									</div>
+								</div>
+								<input style="width:30px;" type="checkbox" id="cb_utf8_16" name="cb_utf8_16" value="">
+								<label class="fieldlabels" class="fieldlabels" for="cb_utf8_16"> Text contains utf-8 international characters. eg. Chinese, Japanese, Korean </label><br>
+								<label class="fieldlabels">Select Text File:</label>
+								<input type="file" id="hidingTextFile" />
+								<p><span style="font-weight:700;">OR</span> Input Text At Below:</p>
+								<p id="charStorageLeft" style="font-size: 12px;font-weight: 700;"></p>
+								<textarea id="hidingText" rows="30" cols="70" style="padding:5px;width: 100%;"></textarea>
+							</div>
+							<input type="button" name="hideText" class="next action-button" value="Next" />
+							<input type="button" name="previous" class="previous action-button-previous" value="Previous" />
+						</fieldset>
+						<fieldset>
+							<div class="form-card">
+								<div class="row">
+									<div class="col-7">
+										<h2 class="fs-title">Hide data into image</h2>
+									</div>
+									<div class="col-5">
+										<h2 class="steps">Step 3 - 4</h2>
+									</div>
+								</div>
+								<input id="btn_hideData" type="button" class="btn btn-info" onclick="hideData()" style="padding: 5px;" value="Ready! Go!" />
+								
+								<div id="loading_hideData" class="sk-fading-circle" style="display:none;">
+								  <div class="sk-circle1 sk-circle"></div>
+								  <div class="sk-circle2 sk-circle"></div>
+								  <div class="sk-circle3 sk-circle"></div>
+								  <div class="sk-circle4 sk-circle"></div>
+								  <div class="sk-circle5 sk-circle"></div>
+								  <div class="sk-circle6 sk-circle"></div>
+								  <div class="sk-circle7 sk-circle"></div>
+								  <div class="sk-circle8 sk-circle"></div>
+								  <div class="sk-circle9 sk-circle"></div>
+								  <div class="sk-circle10 sk-circle"></div>
+								  <div class="sk-circle11 sk-circle"></div>
+								  <div class="sk-circle12 sk-circle"></div>
+								</div>
+								
+							</div>
+							<input id="btn_hideDataNext" name="hide"  style="display:none;" type="button" class="next action-button" value="Next" />
+							<input id="btn_hideDataPrev" type="button" name="previous" class="previous action-button-previous" value="Previous" />
+						</fieldset>
+						<fieldset>
+							<div class="form-card">
+								<div class="row">
+									<div class="col-7">
+										<h2 class="fs-title">Finish:</h2>
+									</div>
+									<div class="col-5">
+										<h2 class="steps">Step 4 - 4</h2>
+									</div>
+								</div> <br>
+								<h2 class="paragraph-text text-center"><strong>SUCCESS !</strong></h2> <br>
+								<div class="row justify-content-center">
+									<div class="col-3">
+										<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+											<circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+											<path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" /></svg>
+									</div>
+								</div> <br><br>
+								<div class="row justify-content-center" style="margin-bottom: 10px;">
+									<div class="col-10 text-center">
+										<h5 class="paragraph-text text-center" style="font-size:16px;">Your text have successfully hidden in the image!<br>Right click on image or click "Download Image" and save to your pc/mobile!</h5>
+									</div>
+								</div>
+								<div id="hidingSuccess" style="display:none;">
+									<div style="width:100%;overflow:hidden;text-align: center;margin-bottom:20px;overflow: scroll;">
+										<canvas id="secretCanvas" width="0" height="0"></canvas>
+									</div>
+									<input id="downloadImage" type="button" onclick="saveImage('secretCanvas','encoded')" value="Download Image" />
+									
+									<button style="width:200px;float:right;" onclick="location.reload();">Let's Try Again!</button>
+								</div>
+							</div>
+						</fieldset>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div id="pnl_showText" class="row justify-content-center" style="display:none;">
+			<div class="col-11 col-sm-10 col-md-10 col-lg-6 col-xl-5 text-center p-0 mt-3 mb-2">
+				<div class="card px-0 pt-4 pb-0 mt-3 mb-3" style="margin-top: 0px !important;padding-top: 0px !important;">
+					<h2 id="heading" style="background-color: #ffc107;padding: 3px;color: black;font-size: 26px;">Show Text From Image</h2>
+					<p style="margin-bottom:0px;">Retrieve text from image</p>
+					<hr />
+					<input type="file" id="loadFile" accept="image/*" />
+					<hr />
+					<div id="loading_decodeData" class="sk-fading-circle" style="display:none;">
+						  <div class="sk-circle1 sk-circle"></div>
+						  <div class="sk-circle2 sk-circle"></div>
+						  <div class="sk-circle3 sk-circle"></div>
+						  <div class="sk-circle4 sk-circle"></div>
+						  <div class="sk-circle5 sk-circle"></div>
+						  <div class="sk-circle6 sk-circle"></div>
+						  <div class="sk-circle7 sk-circle"></div>
+						  <div class="sk-circle8 sk-circle"></div>
+						  <div class="sk-circle9 sk-circle"></div>
+						  <div class="sk-circle10 sk-circle"></div>
+						  <div class="sk-circle11 sk-circle"></div>
+						  <div class="sk-circle12 sk-circle"></div>
+					</div>  
+					<div style="width:100%;overflow:hidden;text-align: center;margin-bottom:20px;overflow: scroll;">
+						<canvas id="decodedCanvas" width="0" height="0"></canvas>
+					</div>
+					<div id="decodeSuccess" style="display:none;">
+						<p>Decoded Text as below:</p>
+						<textarea id="decodedText" rows="30" cols="70" style="padding:5px;width: 100%;"></textarea>
+						<input id="downloadText" type="button" onclick="saveDecodedText()" style="width:80%;margin-top: 20px;padding: 5px;" value="Download Text" />
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+<script>
+var current_fs, next_fs, previous_fs;
+var current = 1;
+var opacity;
+var steps = $("fieldset").length;
+
+function setProgressBar(curStep) {
+	var percent = parseFloat(100 / steps) * curStep;
+	percent = percent.toFixed();
+	$(".progress-bar").css("width", percent + "%")
 }
 
-function embedData2Img( targetText ) {
-	
-	_index = 0;
-	
-    for ( var i = 0, length = targetText.length; i < length; i++ ) {
+function goNext(element) {
+	current_fs = element.parent();
+	next_fs = element.parent().next();
+	$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+	next_fs.show();
+	current_fs.animate({
+		opacity: 0
+	}, {
+		step: function(now) {
+			opacity = 1 - now;
+			current_fs.css({
+				'display': 'none',
+				'position': 'relative'
+			});
+			next_fs.css({
+				'opacity': opacity
+			});
+		},
+		duration: 500
+	});
+	setProgressBar(++current);
+}
 
-        if ( i == 0 ) {
-            var secretLength = length;
-            console.info( 'Secret Length(' + length + 'x4) : ' + secretLength )
-            if ( secretLength > 255 ) {
-                var division = secretLength / 255;
-                if ( division % 1 === 0 ) {
-                    for ( var k = 0; k < division; k++ ) {
-                        _coverImgData.data[ k ] = 255;
-                        _index++;
-                    }
-                }
-                else {
-
-                    var firstPortion = division.toString().split(".")[ 0 ];
-                    var secondPortion = division.toString().split(".")[ 1 ];
-
-                    for ( var k = 0; k < firstPortion; k++ ) {
-                        _coverImgData.data[ k ] = 255;
-                        _index++;
-                    }
-
-                    var numberLeft = secretLength- (firstPortion*255);
-                    console.info( 'numberLeft : ' + numberLeft );
-                    _coverImgData.data[ k ] = numberLeft;
-                    _index++;
-                }
-
-            } else {
-                _coverImgData.data[ 0 ] = secretLength;
-                _index++;
-            }
-        }
-		
-		var asciiCode = targetText[ i ];
-		
-		if(_utf8mode==8)
+function goPrev(element) {
+	current_fs = element.parent();
+	previous_fs = element.parent().prev();
+	$("#progressbar li").eq($("fieldset").index(current_fs)).removeClass("active");
+	previous_fs.show();
+	current_fs.animate({
+		opacity: 0
+	}, {
+		step: function(now) {
+			opacity = 1 - now;
+			current_fs.css({
+				'display': 'none',
+				'position': 'relative'
+			});
+			previous_fs.css({
+				'opacity': opacity
+			});
+		},
+		duration: 500
+	});
+	setProgressBar(--current);
+}
+$(document).ready(function() {
+	setProgressBar(current);
+	$(".next").click(function() {
+		if($(this).attr('name')=='coverImage')
 		{
-			var first2bit = ( asciiCode & 0x03 ); 
-			var first4bitMiddle = ( asciiCode & 0x0C ) >> 2; 
-			var first6bitMiddle = ( asciiCode & 0x30 ) >> 4;
-			var first8bitMiddle = ( asciiCode & 0xC0 ) >> 6; 
-			
-			replaceByte( first2bit );
-			replaceByte( first4bitMiddle );
-			replaceByte( first6bitMiddle );
-			replaceByte( first8bitMiddle );
-		
+			if($("#coverImage").val())
+				goNext($(this));
+			else
+				alert("Please provide cover image for your hidden text!");
 		}
-		else if(_utf8mode==16)
+		else if($(this).attr('name')=='hideText')
 		{
-			var first2bit = ( asciiCode & 0x0003 ); 
-			var first4bitMiddle = ( asciiCode & 0x000C ) >> 2; 
-			var first6bitMiddle = ( asciiCode & 0x0030 ) >> 4; 
-			var first8bitMiddle = ( asciiCode & 0x00C0 ) >> 6; 
-			var first10bitMiddle = ( asciiCode & 0x0300 ) >> 8; 
-			var first12bitMiddle = ( asciiCode & 0x0C00 ) >> 10; 
-			var first14bitMiddle = ( asciiCode & 0x3000 ) >> 12; 
-			var first16bitMiddle = ( asciiCode & 0xC000 ) >> 14; 
-			
-			replaceByte( first2bit );
-			replaceByte( first4bitMiddle );
-			replaceByte( first6bitMiddle );
-			replaceByte( first8bitMiddle );
-			replaceByte( first10bitMiddle );
-			replaceByte( first12bitMiddle );
-			replaceByte( first14bitMiddle );
-			replaceByte( first16bitMiddle );
+			if($("#hidingText").val().length>0)
+				goNext($(this));
+			else
+				alert("Please provide text to hide in the image!");
 		}
-    }
-}
-
-function replaceByte ( bits ) {
-	if(_index < _coverImgData.data.length)
-	{
-		if(_index%4==3 && _index < (_coverImgData.data.length-1)){
-			_coverImgData.data[ _index ]=255; _index++;
-		} 
-		_coverImgData.data[ _index ] = ( _coverImgData.data[ _index ] & 0xFC ) | bits;
-		_index++;
-	}
-
-}
-
-var saveByteArray = (function() {
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style = "display: none";
-    return function(data, name) {
-        var blob = new Blob(data, {
-                type: "octet/stream"
-            }),
-            url = window.URL.createObjectURL(blob);
-        a.href = url;
-        a.download = name;
-        a.click();
-        window.URL.revokeObjectURL(url);
-    };
-}());
-
-var saveTextArray = (function() {
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style = "display: none";
-    return function(data, name) {
-        var blob = new Blob(data, {
-                type: 'text/csv;charset=utf-8;'
-            }),
-            url = window.URL.createObjectURL(blob);
-        a.href = url;
-        a.download = name;
-        a.click();
-        window.URL.revokeObjectURL(url);
-    };
-}());
-
-var saveImage = function(targetCanvas, filename) {
-  var a = document.createElement("a");
-  document.body.appendChild(a);
-  a.style = "display: none";
-	
-  a.download = filename+'.png';
-  a.href = document.getElementById(targetCanvas).toDataURL()
-  a.click();
-}
-
-function saveDecodedText()
-{
-	saveByteArray( _decodedResult.split(''), 'decoded.txt' );
-}
-
-var loadFile = document.getElementById( 'loadFile' );
-loadFile.addEventListener( 'change', function ( e ) {
-
-    var file = e.target.files[ 0 ];
-    var fr = new FileReader();
-
-    fr.addEventListener( "loadend", loadEndEvent );
-
-    function loadEndEvent ( e ) {
-
-        var img = new Image();
-       
-        img.onload = function () {
-			
-			document.getElementById("decodeSuccess").style.display = "none";
-			document.getElementById("loading_decodeData").style.display = "block";
-			
-			console.log("loaded cover image size:"+this.width + 'x' + this.height);
-			document.getElementById('decodedCanvas').width = this.width;
-			document.getElementById('decodedCanvas').height = this.height;
-
-			setTimeout(function(){ 
-						
-				var coverAfter = document.getElementById('decodedCanvas'),
-				ctxCoverAfter = coverAfter.getContext( '2d' )
-				
-				ctxCoverAfter.drawImage( img, 0, 0 );
-				var loadView = ctxCoverAfter.getImageData( 0, 0, coverAfter.width, coverAfter.height );
-				console.log( loadView )
-				var totalLength = 0;
-				var lastIndex;
-				
-				//const exportData = loadView.data.toString().replace(/,/g, '\n');
-				
-				for ( var b = 0, viewLength = loadView.data.length; b < viewLength; b++ ) {
-					if (loadView.data[ b ] == 255) {
-						totalLength += loadView.data[ b ];
-						if (loadView.data[ b + 1 ] < 255) {
-							totalLength += loadView.data[ b + 1 ];
-							lastIndex = b + 1;
-							break;
-						}
-					} else {
-						totalLength += loadView.data[ b ];
-						lastIndex = b;
-						break;
-					}
-				}
-				console.info( 'Total length :' + totalLength + ', Last Index : ' + lastIndex );
-				var secretLength = totalLength;
-				
-				if(_utf8mode==8)
-				{
-					var newUint8Array = new Uint8Array( totalLength );
-					var j = 0;
-					for ( var i = ( lastIndex + 1 ); i < loadView.data.length; i = i++) {
-						var aShift,bShift,cShift,dShift;
-						if(i%4==3) i++;
-						aShift = ( loadView.data[ i++ ] & 3 );
-						if(i%4==3) i++;
-						bShift = ( loadView.data[ i++] & 3 ) << 2;
-						if(i%4==3) i++;
-						cShift = ( loadView.data[ i++] & 3 ) << 4;
-						if(i%4==3) i++;
-						dShift = ( loadView.data[ i++] & 3 ) << 6;
-						var result = ( ( ( aShift | bShift) | cShift ) | dShift );
-						newUint8Array[ j ] = result;
-						j++;
-						if(j==secretLength)
-							break;
-
-					}
-					console.log( newUint8Array )
-					_decodedResult = ab2str(newUint8Array); 
-				}
-				else if(_utf8mode==16)
-				{
-					var newUint16Array = new Uint16Array( totalLength );
-					var j = 0;
-					for ( var i = ( lastIndex + 1 ); i < loadView.data.length; i = i++) {
-						var aShift,bShift,cShift,dShift,eShift,fShift,gShift,hShift;;
-						if(i%4==3) i++;
-						aShift = ( loadView.data[ i++ ] & 3 );
-						if(i%4==3) i++;
-						bShift = ( loadView.data[ i++] & 3 ) << 2;
-						if(i%4==3) i++;
-						cShift = ( loadView.data[ i++] & 3 ) << 4;
-						if(i%4==3) i++;
-						dShift = ( loadView.data[ i++] & 3 ) << 6;
-						if(i%4==3) i++;
-						eShift = ( loadView.data[ i++] & 3 ) << 8;
-						if(i%4==3) i++;
-						fShift = ( loadView.data[ i++] & 3 ) << 10;
-						if(i%4==3) i++;
-						gShift = ( loadView.data[ i++] & 3 ) << 12;
-						if(i%4==3) i++;
-						hShift = ( loadView.data[ i++] & 3 ) << 14;
-						var result = ( ( aShift | bShift) | cShift | dShift | eShift | fShift | gShift | hShift);
-						newUint16Array[ j ] = result;
-						j++;
-						if(j==secretLength)
-							break;
-
-					}
-					console.log( newUint16Array )
-					_decodedResult = ab2str(newUint16Array);
-				}
-				
-				document.getElementById("decodedText").value=_decodedResult;
-				document.getElementById("decodeSuccess").style.display = "block";
-				document.getElementById("loading_decodeData").style.display = "none";
-			
-			}, 2000);
-        }
-		img.src = e.target.result;
-    }
-    fr.readAsDataURL( file );
-});
-
-function str2ab(str) {
-	var buf = null, bufView=null;
-	if(_utf8mode==8)
-	{
-		buf = new ArrayBuffer(str.length); 
-		bufView = new Uint8Array(buf);
-	}
-	else if(_utf8mode==16)
-	{
-		buf = new ArrayBuffer(str.length*2); 
-		bufView = new Uint16Array(buf);	
-	}
-		
-	for (var i=0, strLen=str.length; i<strLen; i++) {
-		bufView[i] = str.charCodeAt(i);
-	}
-	return bufView;
-  
-}
-
-function ab2str(buf) {
-	if(_utf8mode==8)
-		return String.fromCharCode.apply(null, new Uint8Array(buf));
-	else if(_utf8mode==16)
-		return String.fromCharCode.apply(null, new Uint16Array(buf));
-}
-
-function checkImageCapacity()
-{
-	var plainText=document.getElementById("hidingText").value;
-	
-	var textlenspace=0;		
-	if(plainText.length%255==0) textlenspace=Math.floor(plainText.length/255);
-	else textlenspace=Math.floor(plainText.length/255)+1;
-	
-	var plainTextData = str2ab(plainText);
-	var maxCharLen= _capacityBytes-textlenspace;
-	var capacityLeft = maxCharLen-(plainTextData.length);
-	
-	document.getElementById("hidingText").maxLength = ""+maxCharLen;
-	
-	if(capacityLeft>=0)
-	{
-		document.getElementById('charStorageLeft').innerHTML = (capacityLeft)+ " characters storage left.";
-	}
-	else
-	{
-		document.getElementById("hidingText").value=document.getElementById("hidingText").value.substring(0,maxCharLen);
-		document.getElementById('charStorageLeft').innerHTML = "Over the image characters storage capacity. Message truncated. ";
-	}
-	return capacityLeft;
-}
-
-document.getElementById('hidingText').onchange=(function () {
-	checkImageCapacity();
-});
-
-document.getElementById('hidingText').onkeyup = function () {
-	checkImageCapacity();
-};
-
-function calculateCapacityBytes(coverImgData)
-{
-	var capacityBytes=0;
-	if(_utf8mode==8)
-		capacityBytes= (coverImgData.data.length - Math.floor(coverImgData.data.length/4))/4;
-	else if(_utf8mode==16)
-		capacityBytes= Math.floor((coverImgData.data.length - Math.floor(coverImgData.data.length/4))/8);
-	return capacityBytes;
-}
-
-document.getElementById('coverImage').onchange = function() {
-    
-	var coverImage = document.getElementById('coverImage');
-	var file = coverImage.files[ 0 ];
-    var fr = new FileReader();
-
-    fr.addEventListener( "load", loadEvent );
-    fr.addEventListener( "loadend", loadEndEvent );
-
-    function loadEvent ( e ) {
-        console.info( 'loading cover image started...' );
-    }
-
-    function loadEndEvent ( e ) {
-        console.info( 'cover image loadig finished.' );
-        var img = new Image();
-        img.onload = function () {
-			
-			document.getElementById('coverCanvas').width = this.width;
-			document.getElementById('coverCanvas').height = this.height;
-			
-			document.getElementById('secretCanvas').width = this.width;
-			document.getElementById('secretCanvas').height = this.height;			
-			
-			var canvas = document.getElementById('coverCanvas');
-			var ctx = canvas.getContext( '2d' )
-            ctx.drawImage( img, 0, 0 );
-
-			_coverImgData = ctx.getImageData( 0, 0, canvas.width, canvas.height );
-			
-			_capacityBytes=calculateCapacityBytes(_coverImgData);
-			
-			checkImageCapacity();
-			document.getElementById("hidingSuccess").style.display = "none";
+		else if($(this).attr('name')=='hide')
+		{
+			goNext($(this));
 		}
-        img.src = e.target.result;		
-	}
-	
-	fr.readAsDataURL( file );
-
-}
-
-document.getElementById('cb_utf8_16').onchange=(function (){
-    if(this.checked) {
-        _utf8mode=16;
-		_capacityBytes=calculateCapacityBytes(_coverImgData);
-    }
-	else{
-		_utf8mode=8;
-		_capacityBytes=calculateCapacityBytes(_coverImgData);
-	}
-	
-	checkImageCapacity();
+	});
+	$(".previous").click(function() {
+		goPrev($(this));
+	});
 });
 
-function resetOperation()
+function showPanel(target)
 {
-	document.getElementById("coverCanvas").width = 0;
-	document.getElementById("coverCanvas").height = 0;
-	document.getElementById("secretCanvas").width = 0;
-	document.getElementById("secretCanvas").height = 0;	
-	document.getElementById("decodedCanvas").width = 0;
-	document.getElementById("decodedCanvas").height = 0;		
-	
-	document.getElementById("coverImage").value = "";
-	document.getElementById("hidingTextFile").value = "";
-	document.getElementById("loadFile").value = "";
-	
-	document.getElementById("hidingText").value = "";
-	document.getElementById("decodedText").value = "";	
-	
-	document.getElementById("hidingSuccess").style.display = "none";
-	document.getElementById("decodeSuccess").style.display = "none";
+	if(target=='hide text')
+	{
+		$('#pnl_hideText').show();
+		$('#pnl_showText').hide();
+	}
+	else if(target=='show text')
+	{
+		$('#pnl_hideText').hide();
+		$('#pnl_showText').show();
+	}
 }
 
+
+</script>
+<script src="script.js"></script>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-171619009-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-171619009-1');
+</script>
