@@ -9,7 +9,6 @@
 Steganography is the practice of concealing a file, message within another file like image in order to protect the important information. This concept is like hiding a tree in the forest. Therefore, hackers will be hard to find the imporant information of you in a plain text file. You can it use for:
 * Protect your username and password in image
 * Send your secret message through image to family and friends
-* Send your secret message through image to family and friends
 
 The program is totally client side execution and open sourced. Feel free to leave me feedback and use it anyway you like. 
 
