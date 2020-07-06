@@ -26,24 +26,28 @@ function hideData(){
 	document.getElementById("loading_hideData").style.display = "block";
 	document.getElementById("btn_hideData").style.display = "none";
 	document.getElementById("btn_hideDataPrev").style.display = "none";
+
+	setTimeout(function(){ 
+			
+		var plainText=document.getElementById("hidingText").value;
+		var plainTextData = str2ab(plainText);
+		
+		embedData2Img( plainTextData );
+		var secret = document.getElementById('secretCanvas');
+		var ctxSecret = secret.getContext( '2d' );
+		ctxSecret.putImageData( _coverImgData, 0, 0 );
+		
+		//const exportData = _coverImgData.data.toString().replace(/,/g, '\n');
+		//saveTextArray( [exportData], 'original.txt' );
+		
+		document.getElementById("hidingSuccess").style.display = "block";
+		document.getElementById("loading_hideData").style.display = "none";
+		document.getElementById("btn_hideData").style.display = "block";
+		document.getElementById("btn_hideDataPrev").style.display = "block";
+		
+		document.getElementById('btn_hideDataNext').click();
 	
-	var plainText=document.getElementById("hidingText").value;
-	var plainTextData = str2ab(plainText);
-	
-	embedData2Img( plainTextData );
-	var secret = document.getElementById('secretCanvas');
-	var ctxSecret = secret.getContext( '2d' );
-	ctxSecret.putImageData( _coverImgData, 0, 0 );
-	
-	const exportData = _coverImgData.data.toString().replace(/,/g, '\n');
-	//saveTextArray( [exportData], 'original.txt' );
-	
-	document.getElementById("hidingSuccess").style.display = "block";
-	document.getElementById("loading_hideData").style.display = "none";
-	document.getElementById("btn_hideData").style.display = "block";
-	document.getElementById("btn_hideDataPrev").style.display = "block";
-	
-	document.getElementById('btn_hideDataNext').click();
+	}, 2000);
 }
 
 function embedData2Img( targetText ) {
